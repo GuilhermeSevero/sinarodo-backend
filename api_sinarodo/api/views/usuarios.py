@@ -6,10 +6,13 @@ from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.hashers import check_password
+from django_filters import BaseInFilter
 
 
 class UsuariosFilterSet(FilterSet):
+    permissao__in = BaseInFilter(field_name='permissao', lookup_expr='in')
+
     class Meta:
         model = Usuarios
         fields = ('id', 'nome', 'apelido', 'matricula', 'cpf', 'email', 'funcao_1', 'funcao_2', 'login', 'permissao')
@@ -20,7 +23,7 @@ class UsuariosView(FlexFieldsMixin, ModelViewSet):
     queryset = Usuarios.objects.all()
     filter_backends = (DjangoFilterBackend, OrderingFilter, SearchFilter)
     filter_class = UsuariosFilterSet
-    search_fields = ('nome', 'apelido', 'matricula', 'cpf', 'email', )
+    search_fields = ('nome', )
     ordering_fields = ('id', 'nome')
 
     permit_list_expands = []

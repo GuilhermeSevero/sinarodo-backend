@@ -7,12 +7,12 @@ from django_filters import DateFilter
 
 
 class ObrasFilterSet(FilterSet):
-    data_lancamento__gte = DateFilter(field_name='data_lancamento__gte')
-    data_lancamento__lte = DateFilter(field_name='data_lancamento__lte')
-    data_inicio__gte = DateFilter(field_name='data_inicio__gte')
-    data_inicio__lte = DateFilter(field_name='data_inicio__lte')
-    data_final__gte = DateFilter(field_name='data_final__gte')
-    data_final__lte = DateFilter(field_name='data_final__lte')
+    data_lancamento__gte = DateFilter(field_name='data_lancamento', lookup_expr='gte')
+    data_lancamento__lte = DateFilter(field_name='data_lancamento', lookup_expr='lte')
+    data_inicio__gte = DateFilter(field_name='data_inicio', lookup_expr='gte')
+    data_inicio__lte = DateFilter(field_name='data_inicio', lookup_expr='lte')
+    data_final__gte = DateFilter(field_name='data_final', lookup_expr='gte')
+    data_final__lte = DateFilter(field_name='data_final', lookup_expr='lte')
 
     class Meta:
         model = Obras
