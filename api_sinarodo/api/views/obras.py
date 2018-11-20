@@ -4,6 +4,10 @@ from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import FilterSet, DjangoFilterBackend
 from rest_flex_fields.views import FlexFieldsMixin
 from django_filters import DateFilter
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import serializers
+from django.db import transaction
 
 
 class ObrasFilterSet(FilterSet):
@@ -27,3 +31,31 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
     ordering_fields = ('id', 'pedido')
 
     permit_list_expands = []
+
+    @action(methods=["POST"], detail=False)
+    @transaction.atomic(using='default')
+    def premiacao(self, request, *args, **kwargs):
+        usuarios = request.data.pop('usuarios')
+        categorias = request.data.pop('categorias')
+        obra = self._criar_obra(request.data)
+        obra_usuarios = self._criar_obras_usuarios(obra, usuarios, categorias)
+        return Response(data={
+            **obra,
+            obra_usuarios: obra_usuarios
+        })
+
+
+    @staticmethod
+    def _criar_obra(dados):
+        obra = ObrasSerializer(
+            data={
+                **dados
+            }
+        )
+        obra.is_valid(raise_exception=True)
+        obra.save()
+        return obra
+
+    @staticmethod
+    def _criar_obras_usuarios(obra, usuarios, categorias):
+        return {}

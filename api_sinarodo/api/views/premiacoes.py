@@ -22,5 +22,6 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
     ordering_fields = ('id',)
 
     permit_list_expands = [
-        'categoria'
+        'categoria',
+        'obras_usuario'
     ]

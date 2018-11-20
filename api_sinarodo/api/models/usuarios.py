@@ -3,6 +3,7 @@ from django.db import models
 
 class Usuarios(models.Model):
     class Meta:
+        db_table = 'Usuarios'
         ordering = ['id']
 
     matricula = models.IntegerField(null=True, blank=True, unique=True)
@@ -15,5 +16,5 @@ class Usuarios(models.Model):
     password = models.CharField(max_length=255, null=False, blank=False)
     precisa_novo_password = models.BooleanField(null=False, blank=True, default=True)
     permissao = models.IntegerField(null=False, blank=True, default=3)
-    funcao_2 = models.CharField(max_length=30, null=True, blank=True)
     funcao_1 = models.CharField(max_length=30, null=True, blank=True)
+    funcao_2 = models.CharField(max_length=30, null=True, blank=True)
