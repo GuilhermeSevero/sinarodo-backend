@@ -6,8 +6,8 @@ from rest_flex_fields.views import FlexFieldsMixin
 from django_filters import DateFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import serializers
 from django.db import transaction
+from ..utils.premiacao import Premiacao
 
 
 class ObrasFilterSet(FilterSet):
@@ -37,13 +37,18 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
     def premiacao(self, request, *args, **kwargs):
         usuarios = request.data.pop('usuarios')
         categorias = request.data.pop('categorias')
-        obra = self._criar_obra(request.data)
-        obra_usuarios = self._criar_obras_usuarios(obra, usuarios, categorias)
-        return Response(data={
-            **obra,
-            obra_usuarios: obra_usuarios
-        })
 
+        obra = self._criar_obra(dados=request.data)
+
+        for usuario in usuarios:
+            premiacao = Premiacao(
+                obra=obra,
+                usuario=usuario,
+                categorias=categorias
+            )
+            premiacao.premiar()
+
+        return Response('Premiação realizada com sucesso!')
 
     @staticmethod
     def _criar_obra(dados):
@@ -55,7 +60,3 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
         obra.is_valid(raise_exception=True)
         obra.save()
         return obra
-
-    @staticmethod
-    def _criar_obras_usuarios(obra, usuarios, categorias):
-        return {}
