@@ -7,8 +7,9 @@ class ObrasUsuarios(models.Model):
     class Meta:
         db_table = 'ObrasUsuarios'
         ordering = ['id']
+        unique_together = ('obra', 'usuario',)
 
     obra = models.ForeignKey(Obras, on_delete=models.CASCADE)
     usuario = models.ForeignKey(Usuarios, on_delete=models.PROTECT)
-    nota_final = models.IntegerField(null=False, blank=False)
+    nota_final = models.FloatField(null=False, blank=False)
     observacao = models.TextField(null=True, blank=True)

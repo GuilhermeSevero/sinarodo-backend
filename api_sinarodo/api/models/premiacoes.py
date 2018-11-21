@@ -7,6 +7,7 @@ class Premiacoes(models.Model):
     class Meta:
         db_table = 'Premiacoes'
         ordering = ['id']
+        unique_together = ('mes_periodo', 'ano_periodo', 'categoria', 'obras_usuario')
 
     mes_periodo = models.IntegerField(null=False, blank=False)
     ano_periodo = models.IntegerField(null=False, blank=False)

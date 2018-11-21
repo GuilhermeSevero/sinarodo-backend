@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db import transaction
 from ..utils.premiacao import Premiacao
+from rest_framework import serializers
 
 
 class ObrasFilterSet(FilterSet):
@@ -35,18 +36,28 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
     @action(methods=["POST"], detail=False)
     @transaction.atomic(using='default')
     def premiacao(self, request, *args, **kwargs):
-        usuarios = request.data.pop('usuarios')
-        categorias = request.data.pop('categorias')
+        usuarios = request.data.get('usuarios', None)
+        categorias = request.data.get('categorias', None)
+        obra = request.data.get('obra', None)
+        premiacao_observacao = request.data.get('premiacao_observacao', None)
 
-        obra = self._criar_obra(dados=request.data)
+        if not (usuarios and categorias and obra):
+            raise serializers.ValidationError('Parâmetros incorretos!')
+        obra = ObrasSerializer(
+            Obras.objects.get(pk=obra.get('id')),
+            data=obra,
+            partial=True
+        )
+        obra.is_valid(raise_exception=True)
+        obra.save()
 
         for usuario in usuarios:
             premiacao = Premiacao(
-                obra=obra,
-                usuario=usuario,
-                categorias=categorias
+                obra=obra.instance,
+                id_usuario=usuario,
+                categorias=categorias,
             )
-            premiacao.premiar()
+            premiacao.premiar(observacao=premiacao_observacao)
 
         return Response('Premiação realizada com sucesso!')
 
@@ -59,4 +70,4 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
         )
         obra.is_valid(raise_exception=True)
         obra.save()
-        return obra
+        return obra.instance

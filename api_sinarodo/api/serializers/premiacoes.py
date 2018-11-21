@@ -11,7 +11,7 @@ class PremiacoesSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Premiacoes
-        fields = ('id', 'id_categoria', 'id_usuario_obras', 'mes_periodo', 'ano_periodo', 'dias_em_campo', 'nota')
+        fields = ('id', 'id_categoria', 'id_obras_usuario', 'mes_periodo', 'ano_periodo', 'dias_em_campo', 'nota')
 
         expandable_fields = {
             'categoria': (CategoriasSerializer, {'source': 'categoria'}),
