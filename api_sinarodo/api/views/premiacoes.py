@@ -8,6 +8,7 @@ from django_filters import NumberFilter
 
 class PremiacoesFilterSet(FilterSet):
     id_categoria = NumberFilter(field_name='categoria__id')
+    pedido = NumberFilter(field_name='obras_usuario__obra__pedido')
 
     class Meta:
         model = Premiacoes
@@ -19,9 +20,17 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
     queryset = Premiacoes.objects.all()
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filter_class = PremiacoesFilterSet
-    ordering_fields = ('id',)
+    ordering_fields = (
+        'id',
+        'ano_periodo',
+        'mes_periodo',
+        'obras_usuario__usuario__nome',
+        'categoria__descricao'
+    )
 
     permit_list_expands = [
         'categoria',
-        'obras_usuario'
+        'obras_usuario',
+        'obras_usuario.obra',
+        'obras_usuario.usuario'
     ]

@@ -17,6 +17,6 @@ class CategoriasView(FlexFieldsMixin, ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter, SearchFilter)
     filter_class = CategoriasFilterSet
     search_fields = ('descricao',)
-    ordering_fields = ('id', 'descricao')
+    ordering_fields = ('id', 'descricao', 'peso')
 
     permit_list_expands = []

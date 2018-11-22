@@ -14,4 +14,4 @@ class Premiacoes(models.Model):
     dias_em_campo = models.IntegerField(null=False, blank=False)
     nota = models.IntegerField(null=False, blank=False)
     categoria = models.ForeignKey(Categorias, on_delete=models.PROTECT)
-    obras_usuario = models.ForeignKey(ObrasUsuarios, on_delete=models.CASCADE)
+    obras_usuario = models.ForeignKey(ObrasUsuarios, on_delete=models.CASCADE, related_name='premiacoes')

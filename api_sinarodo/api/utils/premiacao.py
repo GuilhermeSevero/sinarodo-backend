@@ -13,10 +13,10 @@ class Premiacao:
 
         mes = self.obra.data_inicio.strftime("%m")
         ano = self.obra.data_final.strftime("%Y")
-
         quantidade_dias = (self.obra.data_final - self.obra.data_inicio).days
 
-        obras_usuario = self._criar_obra_usuario()
+        obras_usuario = self._criar_obra_usuario(observacao=observacao)
+
         for categoria in self.categorias:
             total_pontos += categoria.get('nota') * (categoria.get('peso') / 100)
             self._criar_premiacao(
@@ -32,12 +32,13 @@ class Premiacao:
             nota_final=total_pontos
         )
 
-    def _criar_obra_usuario(self):
+    def _criar_obra_usuario(self, observacao):
         obras_usuario = ObrasUsuariosSerializer(
             data={
                 'id_obra': self.obra.id,
                 'id_usuario': self.id_usuario,
-                'nota_final': 0
+                'nota_final': 0,
+                'observacao': observacao
             }
         )
         obras_usuario.is_valid(raise_exception=True)

@@ -13,3 +13,4 @@ class ObrasUsuarios(models.Model):
     usuario = models.ForeignKey(Usuarios, on_delete=models.PROTECT)
     nota_final = models.FloatField(null=False, blank=False)
     observacao = models.TextField(null=True, blank=True)
+    encarregado = models.BooleanField(blank=True, default=False)

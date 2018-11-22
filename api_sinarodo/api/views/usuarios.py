@@ -24,7 +24,14 @@ class UsuariosView(FlexFieldsMixin, ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter, SearchFilter)
     filter_class = UsuariosFilterSet
     search_fields = ('nome', )
-    ordering_fields = ('id', 'nome')
+    ordering_fields = (
+        'id',
+        'nome',
+        'matricula',
+        'apelido',
+        'funcao_1',
+        'funcao_2'
+    )
 
     permit_list_expands = []
 

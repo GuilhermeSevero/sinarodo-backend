@@ -18,3 +18,8 @@ class Usuarios(models.Model):
     permissao = models.IntegerField(null=False, blank=True, default=3)
     funcao_1 = models.CharField(max_length=30, null=True, blank=True)
     funcao_2 = models.CharField(max_length=30, null=True, blank=True)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.cpf == '':
+            self.cpf = None
+        return super(Usuarios, self).save(force_insert, force_update, using, update_fields)

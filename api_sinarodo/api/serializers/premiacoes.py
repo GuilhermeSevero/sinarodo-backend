@@ -13,7 +13,7 @@ class PremiacoesSerializer(FlexFieldsModelSerializer):
         model = Premiacoes
         fields = ('id', 'id_categoria', 'id_obras_usuario', 'mes_periodo', 'ano_periodo', 'dias_em_campo', 'nota')
 
-        expandable_fields = {
-            'categoria': (CategoriasSerializer, {'source': 'categoria'}),
-            'obras_usuario': (ObrasUsuariosSerializer, {'source': 'obras_usuario'})
-        }
+    expandable_fields = {
+        'categoria': (CategoriasSerializer, {'source': 'categoria'}),
+        'obras_usuario': (ObrasUsuariosSerializer, {'source': 'obras_usuario'})
+    }

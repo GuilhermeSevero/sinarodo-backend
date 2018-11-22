@@ -21,7 +21,7 @@ class CustomLimitOffsetPagination(LimitOffsetPagination):
         return Response(
             data=data,
             headers={
-                'x-count': self.count,
+                'x-total': self.count,
                 'x-page': int(int(self.offset) / int(self.limit)) + 1 if self.offset > 0 else 1,
                 'x-per-page': self.limit
             }

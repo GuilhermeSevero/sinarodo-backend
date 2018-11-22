@@ -29,7 +29,13 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
     queryset = Obras.objects.all()
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filter_class = ObrasFilterSet
-    ordering_fields = ('id', 'pedido')
+    ordering_fields = (
+        'id',
+        'pedido',
+        'data_lancamento',
+        'data_inicio',
+        'data_final'
+    )
 
     permit_list_expands = []
 
