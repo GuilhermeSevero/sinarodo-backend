@@ -42,28 +42,26 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
     @action(methods=["POST"], detail=False)
     @transaction.atomic(using='default')
     def premiacao(self, request, *args, **kwargs):
-        usuarios = request.data.get('usuarios', None)
-        categorias = request.data.get('categorias', None)
-        obra = request.data.get('obra', None)
-        premiacao_observacao = request.data.get('premiacao_observacao', None)
+        usuarios = request.data.get('usuarios', [])
+        categorias = request.data.get('categorias', [])
+        id_obra = request.data.get('id_obra', None)
+        premiacao_observacao = request.data.get('premiacao_observacao', '')
+        encarregado = request.data.get('encarregado', False)
 
-        if not (usuarios and categorias and obra):
+        if not (usuarios and categorias and id_obra):
             raise serializers.ValidationError('Parâmetros incorretos!')
-        obra = ObrasSerializer(
-            Obras.objects.get(pk=obra.get('id')),
-            data=obra,
-            partial=True
-        )
-        obra.is_valid(raise_exception=True)
-        obra.save()
 
-        for usuario in usuarios:
-            premiacao = Premiacao(
-                obra=obra.instance,
-                id_usuario=usuario,
-                categorias=categorias,
-            )
-            premiacao.premiar(observacao=premiacao_observacao)
+        if encarregado:
+            usuarios.append(encarregado)
+
+        premiacao = Premiacao(
+            id_obra=id_obra,
+            categorias=categorias,
+            observacao=premiacao_observacao
+        )
+
+        for id_usuario in usuarios:
+            premiacao.premiar(id_usuario=id_usuario, encarregado=(encarregado and encarregado == id_usuario))
 
         return Response('Premiação realizada com sucesso!')
 

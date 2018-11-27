@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import FilterSet, DjangoFilterBackend
 from rest_flex_fields.views import FlexFieldsMixin
-from django_filters import NumberFilter, CharFilter, DateFilter
+from django_filters import NumberFilter, CharFilter, DateFilter, BooleanFilter
 
 
 class ObrasUsuariosFilterSet(FilterSet):
@@ -21,6 +21,7 @@ class ObrasUsuariosFilterSet(FilterSet):
     usuario_cpf = CharFilter(field_name='usuario__cpf')
     usuario_matricula = NumberFilter(field_name='usuario__matricula')
 
+    encarregado = BooleanFilter(field_name='encarregado')
 
     class Meta:
         model = ObrasUsuarios
