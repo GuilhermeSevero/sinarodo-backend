@@ -3,6 +3,7 @@ from ..serializers.premiacoes import PremiacoesSerializer
 from ..models.obras import Obras
 from ..models.configuracoes import Configuracoes
 from rest_framework import serializers
+from datetime import date, timedelta
 
 
 class Premiacao:
@@ -15,16 +16,54 @@ class Premiacao:
         self.observacao = observacao
 
     def premiar(self, id_usuario, encarregado=False):
-        total_pontos = 0
+        data_inicio = self.obra.data_inicio
+        data_final = self.obra.data_final
 
-        mes = self.obra.data_inicio.strftime("%m")
-        ano = self.obra.data_final.strftime("%Y")
-        quantidade_dias = (self.obra.data_final - self.obra.data_inicio).days
+        mes_inicio = int(data_inicio.strftime("%m"))
+        ano_inicio = int(data_inicio.strftime("%Y"))
+
+        mes_fim = int(data_final.strftime("%m"))
+        ano_fim = int(data_final.strftime("%Y"))
+
+        mes_fim += (12 * (ano_fim - ano_inicio))
+
+        data_atual = data_inicio
+        ano_atual = ano_inicio
 
         obras_usuario = self._criar_obra_usuario(
             id_usuario=id_usuario,
             encarregado=encarregado
         )
+
+        for i in range(mes_inicio, mes_fim + 1):
+            if i > 12:
+                mes_atual = 1
+                ano_atual += 1
+            else:
+                mes_atual = i
+
+            if i < mes_fim:
+                if i == 12:
+                    proxima_data = date(ano_atual + 1, 1, 1)
+                else:
+                    proxima_data = date(ano_atual, mes_atual + 1, 1)
+
+                ultimo_dia_mes = proxima_data - timedelta(days=1)
+                quantidade_dias = (ultimo_dia_mes - data_atual).days
+                data_atual = proxima_data
+            else:
+                quantidade_dias = (data_final - data_atual).days
+
+            self._do_premiar(
+                obras_usuario=obras_usuario,
+                encarregado=encarregado,
+                mes=mes_atual,
+                ano=ano_atual,
+                quantidade_dias=quantidade_dias + 1
+            )
+
+    def _do_premiar(self, obras_usuario, encarregado, mes, ano, quantidade_dias):
+        total_pontos = 0
 
         for categoria in self.categorias:
             total_pontos += self._calcula_pontos(categoria=categoria, encarregado=encarregado)
@@ -42,7 +81,7 @@ class Premiacao:
             nota_final=total_pontos
         )
 
-    def _criar_obra_usuario(self, id_usuario, encarregado=False):
+    def _criar_obra_usuario(self, id_usuario, encarregado):
         obras_usuario = ObrasUsuariosSerializer(
             data={
                 'id_obra': self.obra.id,
@@ -93,7 +132,7 @@ class Premiacao:
     def _calcula_acrescimo_encarregado(pontuacao):
         try:
             acrescimo = Configuracoes.objects.first().acrescimo_encarregado
-        except Configuracoes.DoesNotExist:
+        except:
             acrescimo = 0
         return pontuacao * ((acrescimo / 100) + 1)
 

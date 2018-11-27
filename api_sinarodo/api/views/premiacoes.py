@@ -9,6 +9,7 @@ from django_filters import NumberFilter
 class PremiacoesFilterSet(FilterSet):
     id_categoria = NumberFilter(field_name='categoria__id')
     pedido = NumberFilter(field_name='obras_usuario__obra__pedido')
+    id_usuario_obra = NumberFilter(field_name='obras_usuario__id')
 
     class Meta:
         model = Premiacoes
