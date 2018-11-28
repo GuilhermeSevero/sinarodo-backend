@@ -30,7 +30,7 @@ SILENCED_SYSTEM_CHECKS = ['models.E007']
 
 ALLOWED_HOSTS = os.environ.get(
     'ALLOWED_HOSTS',
-    'localhost,127.0.0.1,{hostname},{ip}'.format(hostname=gethostname(), ip=gethostbyname(gethostname()))
+    'localhost,127.0.0.1,{hostname},{ip}, severo.tech'.format(hostname=gethostname(), ip=gethostbyname(gethostname()))
 ).split(',')
 
 DESCRIPTION = 'API Sinarodo - Homologação'
