@@ -1,9 +1,13 @@
+from rest_framework.decorators import action
 from ..serializers.premiacoes import Premiacoes, PremiacoesSerializer
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import FilterSet, DjangoFilterBackend
 from rest_flex_fields.views import FlexFieldsMixin
 from django_filters import NumberFilter
+from rest_framework import serializers
+from django.db import connections
+from rest_framework.response import Response
 
 
 class PremiacoesFilterSet(FilterSet):
@@ -35,3 +39,98 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         'obras_usuario.obra',
         'obras_usuario.usuario'
     ]
+
+    @action(methods=["GET"], detail=False)
+    def relatorio_mensal(self, request, *args, **kwargs):
+        mes = request.query_params.get('mes', None)
+        ano = request.query_params.get('ano', None)
+
+        if not (mes and ano):
+            raise serializers.ValidationError('Informe o Mês e o Ano para o relatório!')
+
+        SQL = " SELECT " \
+              "	  u.nome," \
+              "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
+              "   SUM(p.dias_em_campo) AS dias_em_campo" \
+              " FROM premiacoes p" \
+              " INNER JOIN obrasusuarios ou" \
+              "	  ON p.obras_usuario_id = ou.id" \
+              " INNER JOIN usuarios u" \
+              "	  ON ou.usuario_id = u.id" \
+              " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)" \
+              "	  AND p.ano_periodo = %s" \
+              "   AND p.mes_periodo = %s" \
+              " GROUP BY u.nome; "
+
+        cursor = connections['default'].cursor()
+        cursor.execute(SQL, [ano, mes])
+        premiacoes = cursor.fetchall()
+        retorno = []
+        for item in premiacoes:
+            retorno.append({
+                'nome': item[0],
+                'nota_media': "{0:.2f}".format(item[1]),
+                'dias_em_campo': item[2]
+            })
+        return Response(retorno)
+
+    @action(methods=["GET"], detail=False)
+    def relatorio_anual(self, request, *args, **kwargs):
+        ano = request.query_params.get('ano', None)
+
+        if not ano:
+            raise serializers.ValidationError('Informe o Ano para o relatório!')
+
+        SQL = " SELECT " \
+              "	  u.nome," \
+              "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
+              "   SUM(p.dias_em_campo) AS dias_em_campo" \
+              " FROM premiacoes p" \
+              " INNER JOIN obrasusuarios ou" \
+              "	  ON p.obras_usuario_id = ou.id" \
+              " INNER JOIN usuarios u" \
+              "	  ON ou.usuario_id = u.id" \
+              " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)" \
+              "	  AND p.ano_periodo = %s" \
+              " GROUP BY u.nome; "
+
+        cursor = connections['default'].cursor()
+        cursor.execute(SQL, [ano])
+        premiacoes = cursor.fetchall()
+        retorno = []
+        for item in premiacoes:
+            retorno.append({
+                'nome': item[0],
+                'nota_media': "{0:.2f}".format(item[1]),
+                'dias_em_campo': item[2]
+            })
+        return Response(retorno)
+
+    @action(methods=["GET"], detail=False)
+    def relatorio_usuario(self, request, *args, **kwargs):
+        mes = request.query_params.get('mes', None)
+        ano = request.query_params.get('ano', None)
+        usuario = request.query_params.get('usuario', None)
+
+        if not (usuario and mes and ano):
+            raise serializers.ValidationError('Informe o Usuário, Mês e o Ano para o relatório!')
+
+        SQL = " SELECT " \
+              "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
+              "	  SUM(p.dias_em_campo) AS dias_em_campo " \
+              " FROM premiacoes p " \
+              " INNER JOIN obrasusuarios ou" \
+              "	  ON p.obras_usuario_id = ou.id " \
+              " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1) " \
+              "	  AND p.ano_periodo = %s " \
+              "   AND p.mes_periodo = %s " \
+              "   AND ou.usuario_id = %s;"
+
+        cursor = connections['default'].cursor()
+        cursor.execute(SQL, [ano, mes, usuario])
+        premiacoes = cursor.fetchone()
+
+        return Response({
+            'nota_media': "{0:.2f}".format(premiacoes[0]),
+            'dias_em_campo': premiacoes[1]
+        })
