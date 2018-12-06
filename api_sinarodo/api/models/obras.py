@@ -3,7 +3,7 @@ from django.db import models
 
 class Obras(models.Model):
     class Meta:
-        db_table = 'Obras'
+        db_table = 'obras'
         ordering = ['id']
 
     pedido = models.CharField(max_length=20, null=False, blank=False, unique=True)

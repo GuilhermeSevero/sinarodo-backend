@@ -3,7 +3,7 @@ from django.db import models
 
 class Usuarios(models.Model):
     class Meta:
-        db_table = 'Usuarios'
+        db_table = 'usuarios'
         ordering = ['id']
 
     matricula = models.IntegerField(null=True, blank=True, unique=True)

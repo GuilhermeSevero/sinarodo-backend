@@ -3,7 +3,7 @@ from django.db import models
 
 class Configuracoes(models.Model):
     class Meta:
-        db_table = 'Configuracoes'
+        db_table = 'configuracoes'
         ordering = ['id']
 
     acrescimo_encarregado = models.FloatField(null=False, blank=True, default=10.0)

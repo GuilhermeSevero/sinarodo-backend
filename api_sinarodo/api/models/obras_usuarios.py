@@ -5,7 +5,7 @@ from .usuarios import Usuarios
 
 class ObrasUsuarios(models.Model):
     class Meta:
-        db_table = 'ObrasUsuarios'
+        db_table = 'obrasusuarios'
         ordering = ['id']
         unique_together = ('obra', 'usuario',)
 
