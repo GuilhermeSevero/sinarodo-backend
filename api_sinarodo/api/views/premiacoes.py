@@ -64,7 +64,7 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
               " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)" \
               "	  AND p.ano_periodo = %s" \
               "   AND p.mes_periodo = %s" \
-              " GROUP BY u.nome" \
+              " GROUP BY u.id, u.nome, u.matricula, u.funcao_1 " \
               " ORDER BY u.nome; "
 
         cursor = connections['default'].cursor()
@@ -106,7 +106,7 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
               "	  ON ou.usuario_id = u.id" \
               " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)" \
               "	  AND p.ano_periodo = %s" \
-              " GROUP BY u.nome " \
+              " GROUP BY u.id, u.nome, u.matricula, u.funcao_1 " \
               " ORDER BY u.nome; "
 
         cursor = connections['default'].cursor()
