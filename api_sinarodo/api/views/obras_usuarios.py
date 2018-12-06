@@ -4,6 +4,8 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import FilterSet, DjangoFilterBackend
 from rest_flex_fields.views import FlexFieldsMixin
 from django_filters import NumberFilter, CharFilter, DateFilter, BooleanFilter
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class ObrasUsuariosFilterSet(FilterSet):
@@ -40,3 +42,7 @@ class ObrasUsuariosView(FlexFieldsMixin, ModelViewSet):
         'obra',
         'usuario'
     ]
+
+    @action(methods=["GET"], detail=True)
+    def meses_da_obra(self, request, *args, **kwargs):
+        return Response('Teste')
