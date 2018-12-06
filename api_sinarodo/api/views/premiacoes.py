@@ -8,6 +8,7 @@ from django_filters import NumberFilter
 from rest_framework import serializers
 from django.db import connections
 from rest_framework.response import Response
+from ..models.configuracoes import Configuracoes
 
 
 class PremiacoesFilterSet(FilterSet):
@@ -51,7 +52,10 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         SQL = " SELECT " \
               "	  u.nome," \
               "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
-              "   SUM(p.dias_em_campo) AS dias_em_campo" \
+              "   SUM(p.dias_em_campo) AS dias_em_campo," \
+              "   u.id," \
+              "   u.matricula," \
+              "   u.funcao_1" \
               " FROM premiacoes p" \
               " INNER JOIN obrasusuarios ou" \
               "	  ON p.obras_usuario_id = ou.id" \
@@ -60,7 +64,8 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
               " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)" \
               "	  AND p.ano_periodo = %s" \
               "   AND p.mes_periodo = %s" \
-              " GROUP BY u.nome; "
+              " GROUP BY u.nome" \
+              " ORDER BY u.nome; "
 
         cursor = connections['default'].cursor()
         cursor.execute(SQL, [ano, mes])
@@ -68,9 +73,15 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         retorno = []
         for item in premiacoes:
             retorno.append({
-                'nome': item[0],
+                'usuario': {
+                    'id': item[3],
+                    'matricula': item[4],
+                    'nome': item[0],
+                    'funcao_1': item[5]
+                },
                 'nota_media': "{0:.2f}".format(item[1]),
-                'dias_em_campo': item[2]
+                'dias_em_campo': item[2],
+                'valor_premio': self._premiar(nota_media=item[1], dias_em_campo=item[2])
             })
         return Response(retorno)
 
@@ -84,7 +95,10 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         SQL = " SELECT " \
               "	  u.nome," \
               "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
-              "   SUM(p.dias_em_campo) AS dias_em_campo" \
+              "   SUM(p.dias_em_campo) AS dias_em_campo," \
+              "   u.id," \
+              "   u.matricula," \
+              "   u.funcao_1" \
               " FROM premiacoes p" \
               " INNER JOIN obrasusuarios ou" \
               "	  ON p.obras_usuario_id = ou.id" \
@@ -92,7 +106,8 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
               "	  ON ou.usuario_id = u.id" \
               " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)" \
               "	  AND p.ano_periodo = %s" \
-              " GROUP BY u.nome; "
+              " GROUP BY u.nome " \
+              " ORDER BY u.nome; "
 
         cursor = connections['default'].cursor()
         cursor.execute(SQL, [ano])
@@ -100,7 +115,12 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         retorno = []
         for item in premiacoes:
             retorno.append({
-                'nome': item[0],
+                'usuario': {
+                    'id': item[3],
+                    'matricula': item[4],
+                    'nome': item[0],
+                    'funcao_1': item[5]
+                },
                 'nota_media': "{0:.2f}".format(item[1]),
                 'dias_em_campo': item[2]
             })
@@ -129,8 +149,27 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         cursor = connections['default'].cursor()
         cursor.execute(SQL, [ano, mes, usuario])
         premiacoes = cursor.fetchone()
+        if premiacoes[0]:
+            return Response({
+                'nota_media': "{0:.2f}".format(premiacoes[0]),
+                'dias_em_campo': premiacoes[1],
+                'valor_premio': self._premiar(nota_media=premiacoes[0], dias_em_campo=premiacoes[1])
+            })
+        return Response({})
 
-        return Response({
-            'nota_media': "{0:.2f}".format(premiacoes[0]),
-            'dias_em_campo': premiacoes[1]
-        })
+    @staticmethod
+    def _premiar(nota_media, dias_em_campo):
+        try:
+            config = Configuracoes.objects.first()
+            if dias_em_campo >= config.dias_em_campo:
+                opcoes = {
+                    6: config.premio_seis,
+                    7: config.premio_sete,
+                    8: config.premio_oito,
+                    9: config.premio_nove,
+                    10: config.premio_dez
+                }
+                return opcoes.get(int(nota_media), 0)
+        except Exception:
+            pass
+        return 0.0
