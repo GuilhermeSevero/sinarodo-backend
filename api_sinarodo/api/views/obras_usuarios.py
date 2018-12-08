@@ -6,6 +6,7 @@ from rest_flex_fields.views import FlexFieldsMixin
 from django_filters import NumberFilter, CharFilter, DateFilter, BooleanFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import serializers
 
 
 class ObrasUsuariosFilterSet(FilterSet):
@@ -43,6 +44,24 @@ class ObrasUsuariosView(FlexFieldsMixin, ModelViewSet):
         'usuario'
     ]
 
-    @action(methods=["GET"], detail=True)
-    def meses_da_obra(self, request, *args, **kwargs):
-        return Response('Teste')
+    @action(methods=["PATCH"], detail=True)
+    def diminuir_dias_em_campo(self, request, *args, **kwargs):
+        mes = request.data.get('mes_periodo', None)
+        ano = request.data.get('ano_periodo', None)
+        dias = request.data.get('dias', None)
+
+        if not (mes and ano and dias):
+            raise serializers.ValidationError('Parametros incorretos. Informe o mes_periodo, ano_periodo e dias!')
+
+        id_usuario_obras = kwargs.get('pk', None)
+
+        try:
+            obras_usuario = ObrasUsuarios.objects.get(pk=id_usuario_obras)
+        except ObrasUsuarios.DoesNotExist:
+            raise serializers.ValidationError('Registro não encontrado!')
+
+        for premio in obras_usuario.premiacoes.all():
+            premio.dias_em_campo -= dias
+            premio.save()
+
+        return Response('{dias} dias em campo diminuidos com sucesso!'.format(dias=dias))
