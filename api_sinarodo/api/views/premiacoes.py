@@ -49,6 +49,9 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         if not (mes and ano):
             raise serializers.ValidationError('Informe o Mês e o Ano para o relatório!')
 
+        return Response(self._buscar_dados_mensais(mes=mes, ano=ano))
+
+    def _buscar_dados_mensais(self, mes, ano):
         SQL = " SELECT " \
               "	  u.nome," \
               "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
@@ -83,7 +86,7 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
                 'dias_em_campo': item[2],
                 'valor_premio': self._premiar(nota_media=item[1], dias_em_campo=item[2])
             })
-        return Response(retorno)
+        return retorno
 
     @action(methods=["GET"], detail=False)
     def relatorio_anual(self, request, *args, **kwargs):
@@ -112,9 +115,9 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         cursor = connections['default'].cursor()
         cursor.execute(SQL, [ano])
         premiacoes = cursor.fetchall()
-        retorno = []
+        relatorio_final = []
         for item in premiacoes:
-            retorno.append({
+            relatorio_final.append({
                 'usuario': {
                     'id': item[3],
                     'matricula': item[4],
@@ -122,9 +125,24 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
                     'funcao_1': item[5]
                 },
                 'nota_media': "{0:.2f}".format(item[1]),
-                'dias_em_campo': item[2]
+                'dias_em_campo': item[2],
+                'valor_premio': 0.0
             })
-        return Response(retorno)
+
+        for mes in range(1, 13):
+            premios_do_mes = self._buscar_dados_mensais(mes=mes, ano=ano)
+            for premio in premios_do_mes:
+                encontrado = False
+                for premio_final in relatorio_final:
+                    if premio['usuario']['id'] == premio_final['usuario']['id']:
+                        premio_final['dias_em_campo'] += premio['dias_em_campo']
+                        premio_final['valor_premio'] += premio['valor_premio']
+                        encontrado = True
+                        break
+                if not encontrado:
+                    relatorio_final.append(premio)
+
+        return Response(relatorio_final)
 
     @action(methods=["GET"], detail=False)
     def relatorio_usuario(self, request, *args, **kwargs):
