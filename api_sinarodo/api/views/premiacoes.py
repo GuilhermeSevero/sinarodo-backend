@@ -180,6 +180,8 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         try:
             config = Configuracoes.objects.first()
             if dias_em_campo >= config.dias_em_campo:
+                if nota_media > 10:
+                    return config.premio_dez
                 opcoes = {
                     6: config.premio_seis,
                     7: config.premio_sete,
