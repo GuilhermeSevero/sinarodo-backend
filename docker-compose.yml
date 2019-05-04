@@ -1,9 +1,44 @@
 version: '3.1'
 services:
-  app-sinarodo:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_DATABASE=sinarodo
+      - MYSQL_USER=sinarodo
+      - MYSQL_PASSWORD=sinarodo
+      - MYSQL_ROOT_PASSWORD=196320
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - database:/var/lib/mysql
+
+  api-sinarodo:
     image: guisevero/apisinarodo:1.0.0
     ports:
-      - "8080:8080"
+      - '8080:8080'
+    expose:
+      - '8080'
+    links:
+      - db
+    depends_on:
+      - 'db'
     environment:
       - DJANGO_SETTINGS_MODULE=settings.production
       - ALLOWED_HOSTS=localhost,127.0.0.1,severo.tech,app-sinarodo
+
+  adminer:
+    image: adminer
+    restart: always
+    links:
+      - db
+    depends_on:
+      - 'db'
+    ports:
+      - 8000:8080
+
+volumes:
+  database:
+    driver: local
