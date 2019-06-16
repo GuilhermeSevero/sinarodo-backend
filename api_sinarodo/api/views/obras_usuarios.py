@@ -60,7 +60,11 @@ class ObrasUsuariosView(FlexFieldsMixin, ModelViewSet):
         except ObrasUsuarios.DoesNotExist:
             raise serializers.ValidationError('Registro não encontrado!')
 
-        for premio in obras_usuario.premiacoes.all():
+        premiacoes = obras_usuario.premiacoes.all()
+        if premiacoes.first().dias_em_campo < 0:
+            raise serializers.ValidationError('Quantidade de dias em campo inválida!')
+
+        for premio in premiacoes:
             premio.dias_em_campo -= dias
             premio.save()
 

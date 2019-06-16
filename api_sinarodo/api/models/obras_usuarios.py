@@ -8,7 +8,6 @@ class ObrasUsuarios(models.Model):
     class Meta:
         db_table = 'obrasusuarios'
         ordering = ['id']
-        unique_together = ('obra', 'usuario',)
 
     obra = models.ForeignKey(Obras, on_delete=models.CASCADE, related_name='usuarios_obra')
     usuario = models.ForeignKey(Usuarios, on_delete=models.PROTECT)

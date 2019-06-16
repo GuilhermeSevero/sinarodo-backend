@@ -8,8 +8,8 @@ class ObrasSerializer(FlexFieldsModelSerializer):
         model = Obras
         fields = '__all__'
 
-    def validate(self, attrs):
-        if hasattr(self.instance, 'usuarios_obra') and self.instance.usuarios_obra.all():
-            raise serializers.ValidationError('Não é possível alterar uma Obra que já foi premiada! <br>'
-                                              'Exclua os registros de premiação para continuar.')
-        return super(ObrasSerializer, self).validate(attrs)
+    # def validate(self, attrs):
+    #     if hasattr(self.instance, 'usuarios_obra') and self.instance.usuarios_obra.all():
+    #         raise serializers.ValidationError('Não é possível alterar uma Obra que já foi premiada! <br>'
+    #                                           'Exclua os registros de premiação para continuar.')
+    #     return super(ObrasSerializer, self).validate(attrs)

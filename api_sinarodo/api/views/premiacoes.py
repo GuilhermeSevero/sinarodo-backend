@@ -1,13 +1,13 @@
 from rest_framework.decorators import action
-from ..serializers.premiacoes import Premiacoes, PremiacoesSerializer
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import FilterSet, DjangoFilterBackend
 from rest_flex_fields.views import FlexFieldsMixin
-from django_filters import NumberFilter
+from django_filters import NumberFilter, BooleanFilter
 from rest_framework import serializers
 from django.db import connections
 from rest_framework.response import Response
+from ..serializers.premiacoes import Premiacoes, PremiacoesSerializer
 from ..models.configuracoes import Configuracoes
 
 
@@ -15,6 +15,12 @@ class PremiacoesFilterSet(FilterSet):
     id_categoria = NumberFilter(field_name='categoria__id')
     pedido = NumberFilter(field_name='obras_usuario__obra__pedido')
     id_usuario_obra = NumberFilter(field_name='obras_usuario__id')
+    apenas_categorias = BooleanFilter(method='_filter_apenas_categorias')
+
+    def _filter_apenas_categorias(self, queryset, *args, **kwargs):
+        return queryset\
+            .order_by('obras_usuario', 'mes_periodo', 'ano_periodo', 'categoria')\
+            .distinct()
 
     class Meta:
         model = Premiacoes

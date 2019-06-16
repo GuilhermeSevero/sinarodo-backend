@@ -47,16 +47,20 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
         id_obra = request.data.get('id_obra', None)
         premiacao_observacao = request.data.get('premiacao_observacao', '')
         encarregado = request.data.get('encarregado', False)
+        data_inicio = request.data.get('data_inicio', None)
+        data_final = request.data.get('data_final', None)
 
-        if not (usuarios and categorias and id_obra):
+        if not (usuarios and categorias and id_obra and data_inicio and data_final):
             raise serializers.ValidationError('Parâmetros incorretos!')
 
-        if encarregado:
+        if encarregado and not usuarios.__contains__(encarregado):
             usuarios.append(encarregado)
 
         premiacao = Premiacao(
             id_obra=id_obra,
             categorias=categorias,
+            data_incio=data_inicio,
+            data_final=data_final,
             observacao=premiacao_observacao
         )
 

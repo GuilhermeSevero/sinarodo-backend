@@ -1,33 +1,40 @@
+from datetime import date, timedelta, datetime
+import calendar
+from rest_framework import serializers
+from django.db.models import Sum
 from ..serializers.obras_usuarios import ObrasUsuariosSerializer
 from ..serializers.premiacoes import PremiacoesSerializer
 from ..models.obras import Obras
 from ..models.configuracoes import Configuracoes
-from rest_framework import serializers
-from datetime import date, timedelta
 
 
 class Premiacao:
-    def __init__(self, id_obra, categorias, observacao):
+    def __init__(self, id_obra, categorias, data_incio, data_final, observacao):
         try:
             self.obra = Obras.objects.get(pk=id_obra)
         except Obras.DoesNotExist:
             raise serializers.ValidationError('Obra não encontrada!')
+
+        self.data_inicio = datetime.strptime(data_incio, '%Y-%m-%d').date()
+        self.data_final = datetime.strptime(data_final, '%Y-%m-%d').date()
+
+        if (self.data_inicio < self.obra.data_inicio) \
+                or (self.obra.data_final and self.data_final > self.obra.data_final):
+            raise serializers.ValidationError('Data do lançamento fora do período da obra!')
+
         self.categorias = categorias
         self.observacao = observacao
 
     def premiar(self, id_usuario, encarregado=False):
-        data_inicio = self.obra.data_inicio
-        data_final = self.obra.data_final
+        mes_inicio = int(self.data_inicio.strftime("%m"))
+        ano_inicio = int(self.data_inicio.strftime("%Y"))
 
-        mes_inicio = int(data_inicio.strftime("%m"))
-        ano_inicio = int(data_inicio.strftime("%Y"))
-
-        mes_fim = int(data_final.strftime("%m"))
-        ano_fim = int(data_final.strftime("%Y"))
+        mes_fim = int(self.data_final.strftime("%m"))
+        ano_fim = int(self.data_final.strftime("%Y"))
 
         mes_fim += (12 * (ano_fim - ano_inicio))
 
-        data_atual = data_inicio
+        data_atual = self.data_inicio
         ano_atual = ano_inicio
 
         obras_usuario = self._criar_obra_usuario(
@@ -52,7 +59,21 @@ class Premiacao:
                 quantidade_dias = (ultimo_dia_mes - data_atual).days
                 data_atual = proxima_data
             else:
-                quantidade_dias = (data_final - data_atual).days
+                quantidade_dias = (self.data_final - data_atual).days
+
+            pode_premiar = self._validar_dias_trabalhados(
+                id_usuario=id_usuario,
+                mes=mes_atual,
+                ano=ano_atual,
+                dias=quantidade_dias + 1
+            )
+            if not pode_premiar:
+                raise serializers.ValidationError(
+                    'Dias em campo maior que o total de dias do mês!<br> '
+                    'Verifique os lançamentos do usuário: {usuario}<br>'
+                    'Em {mes}/{ano}'
+                    .format(usuario=obras_usuario.usuario.nome, mes=mes_atual, ano=ano_atual)
+                )
 
             self._do_premiar(
                 obras_usuario=obras_usuario,
@@ -135,4 +156,24 @@ class Premiacao:
         except:
             acrescimo = 0
         return pontuacao * ((acrescimo / 100) + 1)
+
+    def _validar_dias_trabalhados(self, id_usuario, mes, ano, dias):
+        premiacoes = PremiacoesSerializer.Meta.model.objects.filter(
+            obras_usuario__obra__id=self.obra.id,
+            obras_usuario__usuario__id=id_usuario,
+            mes_periodo=mes,
+            ano_periodo=ano
+        )\
+            .values('categoria')\
+            .order_by('categoria')\
+            .annotate(total_dias_em_campo=Sum('dias_em_campo'))
+
+        if premiacoes:
+            premiacao = premiacoes.first()
+            _, dias_no_mes = calendar.monthrange(ano, mes)
+            return premiacao.get('total_dias_em_campo', 0) + dias <= dias_no_mes
+
+        return True
+
+
 

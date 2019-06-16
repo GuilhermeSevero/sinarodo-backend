@@ -18,12 +18,11 @@ class ObrasUsuariosSerializer(FlexFieldsModelSerializer):
         'usuario': (UsuariosSerializer, {'source': 'usuario'})
     }
 
-    def validate(self, attrs):
-        try:
-            obras_usuario = ObrasUsuarios.objects.get(obra__id=attrs.get('obra_id'), usuario__id=attrs.get('usuario_id'))
-            if obras_usuario:
-                raise serializers.ValidationError('Usuário {nome} já foi premiado por essa obra!'
-                                                  .format(nome=obras_usuario.usuario.nome))
-        except ObrasUsuarios.DoesNotExist:
-            pass
-        return super(ObrasUsuariosSerializer, self).validate(attrs)
+    # def validate(self, attrs):
+    #     try:
+    #         obras_usuario = ObrasUsuarios.objects.get(obra__id=attrs.get('obra_id'), usuario__id=attrs.get('usuario_id'))
+    #
+    #         raise serializers.ValidationError('Usuário {nome} já foi premiado por essa obra!'
+    #                                           .format(nome=obras_usuario.usuario.nome))
+    #     except ObrasUsuarios.DoesNotExist:
+    #         return super(ObrasUsuariosSerializer, self).validate(attrs)
