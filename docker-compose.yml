@@ -16,7 +16,7 @@ services:
       - database:/var/lib/mysql
 
   api-sinarodo:
-    image: guisevero/apisinarodo:1.0.0
+    image: guisevero/apisinarodo:1.1.0
     ports:
       - '8080:8080'
     expose:
