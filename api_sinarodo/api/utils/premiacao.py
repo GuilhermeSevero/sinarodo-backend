@@ -109,7 +109,9 @@ class Premiacao:
                 'id_usuario': id_usuario,
                 'nota_final': 0,
                 'observacao': self.observacao,
-                'encarregado': encarregado
+                'encarregado': encarregado,
+                'data_inicio': self.data_inicio,
+                'data_final': self.data_final
             }
         )
         obras_usuario.is_valid(raise_exception=True)

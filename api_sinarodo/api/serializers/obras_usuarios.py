@@ -11,7 +11,8 @@ class ObrasUsuariosSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = ObrasUsuarios
-        fields = ('id', 'id_obra', 'id_usuario', 'nota_final', 'observacao', 'encarregado', 'periodos')
+        fields = ('id', 'id_obra', 'id_usuario', 'nota_final', 'observacao', 'encarregado', 'periodos', 'data_inicio',
+                  'data_final')
 
     expandable_fields = {
         'obra': (ObrasSerializer, {'source': 'obra'}),

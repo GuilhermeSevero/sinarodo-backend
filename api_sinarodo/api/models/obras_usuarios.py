@@ -14,6 +14,8 @@ class ObrasUsuarios(models.Model):
     nota_final = models.FloatField(null=False, blank=False)
     observacao = models.TextField(null=True, blank=True)
     encarregado = models.BooleanField(blank=True, default=False)
+    data_inicio = models.DateField(blank=False, null=True)
+    data_final = models.DateField(blank=False, null=True)
 
     @property
     def periodos(self):
