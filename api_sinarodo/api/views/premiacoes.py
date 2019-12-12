@@ -41,7 +41,7 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         'obras_usuario.usuario'
     ]
 
-    @action(methods=["GET"], detail=False)
+    @action(methods=['GET'], detail=False)
     def relatorio_mensal(self, request, *args, **kwargs):
         mes = request.query_params.get('mes', None)
         ano = request.query_params.get('ano', None)
@@ -82,13 +82,13 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
                     'nome': item[0],
                     'funcao_1': item[5]
                 },
-                'nota_media': "{0:.2f}".format(item[1]),
+                'nota_media': '{0:.2f}'.format(item[1]),
                 'dias_em_campo': item[2],
                 'valor_premio': self._premiar(nota_media=item[1], dias_em_campo=item[2])
             })
         return retorno
 
-    @action(methods=["GET"], detail=False)
+    @action(methods=['GET'], detail=False)
     def relatorio_anual(self, request, *args, **kwargs):
         ano = request.query_params.get('ano', None)
 
@@ -124,7 +124,7 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
                     'nome': item[0],
                     'funcao_1': item[5]
                 },
-                'nota_media': "{0:.2f}".format(item[1]),
+                'nota_media': '{0:.2f}'.format(item[1]),
                 'dias_em_campo': item[2],
                 'valor_premio': 0.0
             })
@@ -144,7 +144,7 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
 
         return Response(relatorio_final)
 
-    @action(methods=["GET"], detail=False)
+    @action(methods=['GET'], detail=False)
     def relatorio_usuario(self, request, *args, **kwargs):
         mes = request.query_params.get('mes', None)
         ano = request.query_params.get('ano', None)
@@ -170,7 +170,7 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         premiacoes = cursor.fetchone()
         if premiacoes[0]:
             return Response({
-                'nota_media': "{0:.2f}".format(premiacoes[0]),
+                'nota_media': '{0:.2f}'.format(premiacoes[0]),
                 'dias_em_campo': premiacoes[1],
                 'valor_premio': self._premiar(nota_media=premiacoes[0], dias_em_campo=premiacoes[1])
             })

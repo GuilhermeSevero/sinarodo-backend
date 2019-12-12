@@ -39,7 +39,7 @@ class ObrasView(FlexFieldsMixin, ModelViewSet):
 
     permit_list_expands = []
 
-    @action(methods=["POST"], detail=False)
+    @action(methods=['POST'], detail=False)
     @transaction.atomic(using='default')
     def premiacao(self, request, *args, **kwargs):
         usuarios = request.data.get('usuarios', [])

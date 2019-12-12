@@ -19,13 +19,13 @@ class ObrasUsuarios(models.Model):
 
     @property
     def periodos(self):
-        SQL = " SELECT DISTINCT " \
-              "	  p.ano_periodo," \
-              "   p.mes_periodo," \
-              "   p.dias_em_campo" \
-              " FROM premiacoes p" \
-              " WHERE p.obras_usuario_id = %s" \
-              " ORDER BY p.ano_periodo, p.mes_periodo; "
+        SQL = ' SELECT DISTINCT ' \
+              '	  p.ano_periodo,' \
+              '   p.mes_periodo,' \
+              '   p.dias_em_campo' \
+              ' FROM premiacoes p' \
+              ' WHERE p.obras_usuario_id = %s' \
+              ' ORDER BY p.ano_periodo, p.mes_periodo; '
 
         cursor = connections['default'].cursor()
         cursor.execute(SQL, [self.id])

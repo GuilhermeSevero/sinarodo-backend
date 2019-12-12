@@ -44,7 +44,7 @@ class ObrasUsuariosView(FlexFieldsMixin, ModelViewSet):
         'usuario'
     ]
 
-    @action(methods=["PATCH"], detail=True)
+    @action(methods=['PATCH'], detail=True)
     def diminuir_dias_em_campo(self, request, *args, **kwargs):
         mes = request.data.get('mes_periodo', None)
         ano = request.data.get('ano_periodo', None)

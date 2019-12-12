@@ -26,11 +26,11 @@ class Premiacao:
         self.observacao = observacao
 
     def premiar(self, id_usuario, encarregado=False):
-        mes_inicio = int(self.data_inicio.strftime("%m"))
-        ano_inicio = int(self.data_inicio.strftime("%Y"))
+        mes_inicio = int(self.data_inicio.strftime('%m'))
+        ano_inicio = int(self.data_inicio.strftime('%Y'))
 
-        mes_fim = int(self.data_final.strftime("%m"))
-        ano_fim = int(self.data_final.strftime("%Y"))
+        mes_fim = int(self.data_final.strftime('%m'))
+        ano_fim = int(self.data_final.strftime('%Y'))
 
         mes_fim += (12 * (ano_fim - ano_inicio))
 

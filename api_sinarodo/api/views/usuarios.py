@@ -35,7 +35,7 @@ class UsuariosView(FlexFieldsMixin, ModelViewSet):
 
     permit_list_expands = []
 
-    @action(methods=["POST"], detail=False)
+    @action(methods=['POST'], detail=False)
     def autenticar(self, request, *args, **kwargs):
         login = request.data.get('login', None)
         password = request.data.get('password', None)
