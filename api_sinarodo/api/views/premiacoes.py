@@ -52,23 +52,23 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         return Response(self._buscar_dados_mensais(mes=mes, ano=ano))
 
     def _buscar_dados_mensais(self, mes, ano):
-        SQL = " SELECT " \
-              "	  u.nome," \
-              "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
-              "   SUM(p.dias_em_campo) AS dias_em_campo," \
-              "   u.id," \
-              "   u.matricula," \
-              "   u.funcao_1" \
-              " FROM premiacoes p" \
-              " INNER JOIN obrasusuarios ou" \
-              "	  ON p.obras_usuario_id = ou.id" \
-              " INNER JOIN usuarios u" \
-              "	  ON ou.usuario_id = u.id" \
-              " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)" \
-              "	  AND p.ano_periodo = %s" \
-              "   AND p.mes_periodo = %s" \
-              " GROUP BY u.id, u.nome, u.matricula, u.funcao_1 " \
-              " ORDER BY u.nome; "
+        SQL = ' SELECT ' \
+              '	  u.nome,' \
+              '   (SUM(ou.nota_final) / COUNT(1)) AS nota_media,' \
+              '   SUM(p.dias_em_campo) AS dias_em_campo,' \
+              '   u.id,' \
+              '   u.matricula,' \
+              '   u.funcao_1' \
+              ' FROM premiacoes p' \
+              ' INNER JOIN obrasusuarios ou' \
+              '	  ON p.obras_usuario_id = ou.id' \
+              ' INNER JOIN usuarios u' \
+              '	  ON ou.usuario_id = u.id' \
+              ' WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)' \
+              '	  AND p.ano_periodo = %s' \
+              '   AND p.mes_periodo = %s' \
+              ' GROUP BY u.id, u.nome, u.matricula, u.funcao_1 ' \
+              ' ORDER BY u.nome; '
 
         cursor = connections['default'].cursor()
         cursor.execute(SQL, [ano, mes])
@@ -95,22 +95,22 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         if not ano:
             raise serializers.ValidationError('Informe o Ano para o relatório!')
 
-        SQL = " SELECT " \
-              "	  u.nome," \
-              "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
-              "   SUM(p.dias_em_campo) AS dias_em_campo," \
-              "   u.id," \
-              "   u.matricula," \
-              "   u.funcao_1" \
-              " FROM premiacoes p" \
-              " INNER JOIN obrasusuarios ou" \
-              "	  ON p.obras_usuario_id = ou.id" \
-              " INNER JOIN usuarios u" \
-              "	  ON ou.usuario_id = u.id" \
-              " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)" \
-              "	  AND p.ano_periodo = %s" \
-              " GROUP BY u.id, u.nome, u.matricula, u.funcao_1 " \
-              " ORDER BY u.nome; "
+        SQL = ' SELECT ' \
+              '	  u.nome,' \
+              '   (SUM(ou.nota_final) / COUNT(1)) AS nota_media,' \
+              '   SUM(p.dias_em_campo) AS dias_em_campo,' \
+              '   u.id,' \
+              '   u.matricula,' \
+              '   u.funcao_1' \
+              ' FROM premiacoes p' \
+              ' INNER JOIN obrasusuarios ou' \
+              '	  ON p.obras_usuario_id = ou.id' \
+              ' INNER JOIN usuarios u' \
+              '	  ON ou.usuario_id = u.id' \
+              ' WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1)' \
+              '	  AND p.ano_periodo = %s' \
+              ' GROUP BY u.id, u.nome, u.matricula, u.funcao_1 ' \
+              ' ORDER BY u.nome; '
 
         cursor = connections['default'].cursor()
         cursor.execute(SQL, [ano])
@@ -153,16 +153,17 @@ class PremiacoesView(FlexFieldsMixin, ModelViewSet):
         if not (usuario and mes and ano):
             raise serializers.ValidationError('Informe o Usuário, Mês e o Ano para o relatório!')
 
-        SQL = " SELECT " \
-              "   (SUM(ou.nota_final) / COUNT(1)) AS nota_media," \
-              "	  SUM(p.dias_em_campo) AS dias_em_campo " \
-              " FROM premiacoes p " \
-              " INNER JOIN obrasusuarios ou" \
-              "	  ON p.obras_usuario_id = ou.id " \
-              " WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1) " \
-              "	  AND p.ano_periodo = %s " \
-              "   AND p.mes_periodo = %s " \
-              "   AND ou.usuario_id = %s;"
+        SQL = ' SELECT ' \
+              '   (SUM(ou.nota_final) / COUNT(1)) AS nota_media,' \
+              '	  SUM(p.dias_em_campo) AS dias_em_campo ' \
+              ' FROM premiacoes p ' \
+              ' INNER JOIN obrasusuarios ou' \
+              '	  ON p.obras_usuario_id = ou.id ' \
+              ' WHERE p.categoria_id = (SELECT c.id FROM categorias c LIMIT 1) ' \
+              '	  AND p.ano_periodo = %s ' \
+              '   AND' \
+              ' p.mes_periodo = %s ' \
+              '   AND ou.usuario_id = %s;'
 
         cursor = connections['default'].cursor()
         cursor.execute(SQL, [ano, mes, usuario])
